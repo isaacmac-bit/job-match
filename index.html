@@ -3,311 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Match & Skill Gap Evaluator</title>
+    <title>Job Finder Suite | Client Matcher & Dashboard</title>
     <style>
         :root {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
+            --sidebar-width: 260px;
             --primary: #2563eb;
-            --text: #1e293b;
-            --text-light: #64748b;
+            --primary-dark: #1d4ed8;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
             --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --success: #16a34a;
-            --warning: #ca8a04;
+            --warning: #d97706;
             --danger: #dc2626;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            padding: 2rem 1rem;
-            display: flex;
-            justify-content: center;
-        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { margin: 0; display: flex; height: 100vh; background-color: var(--bg-body); color: var(--text-main); }
 
-        .container {
-            max-width: 900px;
-            width: 100%;
+        /* Sidebar Navigation */
+        aside {
+            width: var(--sidebar-width);
+            background: #1e293b;
+            color: #fff;
+            padding: 1.5rem 1rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2rem;
+            flex-shrink: 0;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 0.5rem;
-        }
-
-        header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.8rem;
-            color: #0f172a;
-        }
-
-        header p {
-            margin: 0;
-            color: var(--text-light);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .card h2 {
-            font-size: 1.2rem;
-            margin-top: 0;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 0.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
+        aside h2 { margin: 0; font-size: 1.25rem; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links { list-style: none; padding: 0; margin: 0; }
+        .nav-links li {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: all 0.2s;
             margin-bottom: 0.25rem;
         }
+        .nav-links li.active, .nav-links li:hover { background: #334155; color: #fff; }
 
-        input[type="text"], input[type="number"], textarea {
-            width: 100%;
+        /* Main Workspace */
+        main { flex-grow: 1; overflow-y: auto; padding: 2rem; }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .header-bar h1 { margin: 0; font-size: 1.5rem; }
+
+        /* Client Selector */
+        .client-selector {
+            background: var(--bg-card);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        select, input, textarea {
             padding: 0.6rem;
             border: 1px solid var(--border);
             border-radius: 6px;
-            box-sizing: border-box;
             font-size: 0.9rem;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        button {
             width: 100%;
-            background-color: var(--primary);
-            color: white;
+        }
+
+        /* Grid Layout */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
+        .card h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; }
+
+        button.btn-primary {
+            background: var(--primary);
+            color: #fff;
             border: none;
-            padding: 0.75rem;
-            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
             font-weight: 600;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s ease;
+            width: 100%;
+            margin-top: 1rem;
         }
+        button.btn-primary:hover { background: var(--primary-dark); }
 
-        button:hover {
-            background-color: #1d4ed8;
-        }
+        /* Results & Indicators */
+        .score-box { text-align: center; padding: 1.5rem; background: #f0f9ff; border-radius: 8px; border: 1px solid #bae6fd; margin-bottom: 1rem; }
+        .score-value { font-size: 3rem; font-weight: 800; color: var(--primary); }
 
-        .results-container {
-            display: none;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        .pill { display: inline-block; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 600; border-radius: 12px; margin: 0.2rem; }
+        .pill-match { background: #dcfce7; color: var(--success); }
+        .pill-missing { background: #fee2e2; color: var(--danger); }
 
-        .score-box {
-            text-align: center;
-            padding: 1rem;
-            background-color: #eff6ff;
-            border-radius: 6px;
-            border: 1px solid #bfdbfe;
-        }
-
-        .score-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 0.25rem 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.6rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 12px;
-            margin: 0.2rem;
-        }
-
-        .badge-success { background: #dcfce7; color: var(--success); }
-        .badge-danger { background: #fee2e2; color: var(--danger); }
-        .badge-warning { background: #fef9c3; color: var(--warning); }
-
-        .tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-top: 0.5rem;
-        }
-
-        .tag {
-            background: #f1f5f9;
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
+        /* Match History Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+        th { background: #f1f5f9; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Job Match Evaluator</h1>
-        <p>Compare client profile and tech stack against job requirements in real-time.</p>
-    </header>
+    <!-- Sidebar -->
+    <aside>
+        <h2>🎯 Job Matcher</h2>
+        <ul class="nav-links">
+            <li class="active">Match Evaluator</li>
+            <li>Client Profiles</li>
+            <li>Applications History</li>
+        </ul>
+    </aside>
 
-    <div class="grid">
-        <!-- Client Profile Form -->
-        <div class="card">
-            <h2>Client Profile</h2>
-            <div class="form-group">
-                <label for="clientName">Client Name</label>
-                <input type="text" id="clientName" value="Candidate Profile">
+    <!-- Main Content -->
+    <main>
+        <div class="header-bar">
+            <h1>Match Evaluator & Skill Analyzer</h1>
+            <span style="color: var(--text-muted); font-size: 0.9rem;">Client Placement Suite</span>
+        </div>
+
+        <!-- Active Client Selector -->
+        <div class="client-selector">
+            <strong style="white-space: nowrap;">Active Client:</strong>
+            <select id="clientSelect" onchange="loadSelectedClient()">
+                <option value="0">Alex Smith (Senior Full Stack Engineer)</option>
+                <option value="1">Sarah Jenkins (Frontend React Developer)</option>
+            </select>
+        </div>
+
+        <div class="grid">
+            <!-- Left: Job Parsing -->
+            <div class="card">
+                <h3>1. Job Details & Requirements</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label><strong>Job Title</strong></label>
+                    <input type="text" id="jobTitle" placeholder="e.g. Senior Backend Engineer">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label><strong>Required Min. Experience (Years)</strong></label>
+                    <input type="number" id="jobExp" value="3">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label><strong>Paste Job Description / Requirements</strong></label>
+                    <textarea id="jobText" style="height: 140px;" placeholder="Paste raw job description here..."></textarea>
+                </div>
+                <button class="btn-primary" onclick="evaluateJob()">Evaluate Match</button>
             </div>
-            <div class="form-group">
-                <label for="clientExp">Years of Experience</label>
-                <input type="number" id="clientExp" value="5" min="0">
-            </div>
-            <div class="form-group">
-                <label for="clientSkills">Client Tech Stack (comma-separated)</label>
-                <textarea id="clientSkills">React, TypeScript, Node.js, PostgreSQL, Docker, AWS, Git</textarea>
+
+            <!-- Right: Real-time Analysis Output -->
+            <div class="card">
+                <h3>2. Match Report & Gaps</h3>
+                <div class="score-box">
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Overall Profile Match</div>
+                    <div id="matchScore" class="score-value">0%</div>
+                    <div id="verdictBadge"></div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <strong>Matched Client Stack:</strong>
+                    <div id="matchedPills" style="margin-top: 0.4rem;"><em>Run evaluation to see results</em></div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <strong>Missing Tech Stack Gaps:</strong>
+                    <div id="missingPills" style="margin-top: 0.4rem;"><em>Run evaluation to see results</em></div>
+                </div>
+
+                <div id="expComparison" style="font-size: 0.85rem; color: var(--text-muted);"></div>
             </div>
         </div>
 
-        <!-- Job Description Form -->
-        <div class="card">
-            <h2>Job Requirements</h2>
-            <div class="form-group">
-                <label for="jobTitle">Job Title</label>
-                <input type="text" id="jobTitle" value="Senior Full Stack Engineer">
-            </div>
-            <div class="form-group">
-                <label for="jobExp">Required Min. Experience (Years)</label>
-                <input type="number" id="jobExp" value="4" min="0">
-            </div>
-            <div class="form-group">
-                <label for="jobSkills">Required Job Skills (comma-separated)</label>
-                <textarea id="jobSkills">React, TypeScript, Next.js, Node.js, GraphQL, PostgreSQL, Kubernetes, AWS</textarea>
-            </div>
+        <!-- Evaluation History Table -->
+        <div class="card" style="margin-top: 1.5rem;">
+            <h3>Evaluated Job Log</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Job Title</th>
+                        <th>Match Score</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTable">
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No evaluated jobs yet.</td></tr>
+                </tbody>
+            </table>
         </div>
-    </div>
-
-    <button onclick="calculateMatch()">Evaluate Match Score</button>
-
-    <!-- Evaluation Results -->
-    <div id="results" class="card results-container">
-        <h2>Match Assessment</h2>
-        
-        <div class="score-box">
-            <div>Overall Compatibility Score</div>
-            <div id="scoreValue" class="score-value">0%</div>
-            <div id="recommendationBadge"></div>
-        </div>
-
-        <div>
-            <strong>Matched Tech Stack:</strong>
-            <div id="matchedTags" class="tag-list"></div>
-        </div>
-
-        <div>
-            <strong>Missing Skill Gaps:</strong>
-            <div id="missingTags" class="tag-list"></div>
-        </div>
-
-        <div id="expStatus" style="font-size: 0.9rem; color: var(--text-light);"></div>
-    </div>
-</div>
+    </main>
 
 <script>
-    function parseSkills(input) {
-        return input.split(',')
-                    .map(s => s.trim())
-                    .filter(s => s.length > 0);
-    }
+    // Client Profiles State
+    const clients = [
+        {
+            name: "Alex Smith",
+            title: "Senior Full Stack Engineer",
+            exp: 5,
+            skills: ["react", "typescript", "node.js", "postgresql", "docker", "aws", "git", "tailwind css"]
+        },
+        {
+            name: "Sarah Jenkins",
+            title: "Frontend React Developer",
+            exp: 3,
+            skills: ["react", "javascript", "css", "html", "redux", "next.js", "git", "figma"]
+        }
+    ];
 
-    function calculateMatch() {
-        const clientExp = parseInt(document.getElementById('clientExp').value) || 0;
-        const clientSkills = parseSkills(document.getElementById('clientSkills').value);
-        
+    const evaluationHistory = [];
+
+    function evaluateJob() {
+        const clientIdx = document.getElementById('clientSelect').value;
+        const currentClient = clients[clientIdx];
+
+        const jobTitle = document.getElementById('jobTitle').value || "Target Role";
         const jobExp = parseInt(document.getElementById('jobExp').value) || 0;
-        const jobSkills = parseSkills(document.getElementById('jobSkills').value);
+        const jobText = document.getElementById('jobText').value.toLowerCase();
 
-        // Normalize skills for case-insensitive matching
-        const clientSkillsLower = clientSkills.map(s => s.toLowerCase());
-        
+        if (!jobText.trim()) {
+            alert("Please paste a job description or skill list first.");
+            return;
+        }
+
+        // Skill parsing algorithm
         const matched = [];
         const missing = [];
 
-        jobSkills.forEach(skill => {
-            if (clientSkillsLower.includes(skill.toLowerCase())) {
+        currentClient.skills.forEach(skill => {
+            if (jobText.includes(skill)) {
                 matched.push(skill);
-            } else {
-                missing.push(skill);
             }
         });
 
-        // 1. Tech Score (70% weight)
-        const techMatchRatio = jobSkills.length > 0 ? (matched.length / jobSkills.length) : 1;
-        const techScore = techMatchRatio * 70;
+        // Common Tech Stack Extraction from job text
+        const knownTech = ["react", "typescript", "node.js", "python", "aws", "docker", "kubernetes", "postgresql", "mongodb", "graphql", "redis", "next.js", "tailwind css", "figma"];
+        
+        knownTech.forEach(tech => {
+            if (jobText.includes(tech) && !currentClient.skills.includes(tech)) {
+                missing.push(tech);
+            }
+        });
 
-        // 2. Experience Score (30% weight)
-        const expRatio = jobExp > 0 ? Math.min(clientExp / jobExp, 1) : 1;
-        const expScore = expRatio * 30;
+        // Match Percentage Calculation
+        const totalIdentified = matched.length + missing.length;
+        const techMatchRatio = totalIdentified > 0 ? (matched.length / totalIdentified) : 0.5;
+        const expRatio = jobExp > 0 ? Math.min(currentClient.exp / jobExp, 1) : 1;
 
-        // Final Aggregate Score
-        const totalScore = Math.round(techScore + expScore);
+        const finalScore = Math.round((techMatchRatio * 70) + (expRatio * 30));
 
-        // UI Render
-        document.getElementById('scoreValue').innerText = `${totalScore}%`;
-
-        // Recommendation logic
-        const badgeElem = document.getElementById('recommendationBadge');
-        if (totalScore >= 80) {
-            badgeElem.innerHTML = `<span class="badge badge-success">Strong Apply</span>`;
-        } else if (totalScore >= 60) {
-            badgeElem.innerHTML = `<span class="badge badge-warning">Tailor Resume</span>`;
+        // Render Score & Badges
+        document.getElementById('matchScore').innerText = `${finalScore}%`;
+        
+        let verdict = "";
+        let badgeClass = "";
+        if (finalScore >= 75) {
+            verdict = "Strong Match - Apply Now";
+            badgeClass = "pill-match";
+        } else if (finalScore >= 50) {
+            verdict = "Moderate Match - Tailor Resume";
+            badgeClass = "pill";
         } else {
-            badgeElem.innerHTML = `<span class="badge badge-danger">Low Match</span>`;
+            verdict = "Low Match - Skill Gap Too High";
+            badgeClass = "pill-missing";
         }
+        document.getElementById('verdictBadge').innerHTML = `<span class="pill ${badgeClass}">${verdict}</span>`;
 
-        // Render skill tags
-        document.getElementById('matchedTags').innerHTML = matched.length > 0 
-            ? matched.map(s => `<span class="tag" style="background:#dcfce7; color:#15803d;">✓ ${s}</span>`).join('') 
-            : '<em>None</em>';
+        // Render Pills
+        document.getElementById('matchedPills').innerHTML = matched.length > 0 
+            ? matched.map(s => `<span class="pill pill-match">✓ ${s}</span>`).join('')
+            : '<em>No matching skills found in text</em>';
 
-        document.getElementById('missingTags').innerHTML = missing.length > 0 
-            ? missing.map(s => `<span class="tag" style="background:#fee2e2; color:#b91c1c;">✗ ${s}</span>`).join('') 
-            : '<em>No missing required skills!</em>';
+        document.getElementById('missingPills').innerHTML = missing.length > 0
+            ? missing.map(s => `<span class="pill pill-missing">✗ ${s}</span>`).join('')
+            : '<em>No missing target skills detected</em>';
 
-        document.getElementById('expStatus').innerText = 
-            `Experience Match: Client has ${clientExp} years | Required: ${jobExp} years`;
+        document.getElementById('expComparison').innerText = 
+            `Experience Status: Client has ${currentClient.exp} YOE | Job requires ${jobExp} YOE`;
 
-        // Display results block
-        document.getElementById('results').style.display = 'flex';
+        // Log History
+        evaluationHistory.unshift({
+            client: currentClient.name,
+            job: jobTitle,
+            score: `${finalScore}%`,
+            rec: verdict
+        });
+
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const tbody = document.getElementById('historyTable');
+        tbody.innerHTML = evaluationHistory.map(item => `
+            <tr>
+                <td><strong>${item.client}</strong></td>
+                <td>${item.job}</td>
+                <td><strong>${item.score}</strong></td>
+                <td>${item.rec}</td>
+            </tr>
+        `).join('');
     }
 </script>
-
 </body>
 </html>
